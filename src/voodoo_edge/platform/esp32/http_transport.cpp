@@ -140,7 +140,7 @@ namespace voodoo
                     http.addHeader("Authorization", _config.api_key);
                 }
 
-                int code = http.POST(const_cast<char *>(json), len);
+                int code = http.POST(reinterpret_cast<uint8_t *>(const_cast<char *>(json)), len);
                 http.end();
 
                 auto &log = hal::get_platform().logging;

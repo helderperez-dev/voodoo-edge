@@ -4,6 +4,8 @@
 #include "voodoo_edge/platform/esp32/esp32_platform.h"
 #include <Arduino.h>
 #include <WiFi.h>
+#include <Wire.h>
+#include <SPI.h>
 #include <cstring>
 #include <cstdarg>
 
