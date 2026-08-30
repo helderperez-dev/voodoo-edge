@@ -1,0 +1,28 @@
+# Build outputs
+.pio/
+.vscode/
+!.vscode/extensions.json
+*.o
+*.a
+*.elf
+*.bin
+*.hex
+
+# PlatformIO
+lib/
+deps/
+
+# Secrets
+secrets.h
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,40 @@
+{
+  "name": "voodoo-edge",
+  "version": "1.0.0",
+  "description": "Reusable SDK for connecting physical devices to the Voodoo Runtime",
+  "keywords": "voodoo, iot, edge, mqtt, esp32, arduino, embedded",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/helderperez-dev/voodoo-edge.git"
+  },
+  "authors": [
+    {
+      "name": "Helder Perez",
+      "email": "helder@nicegoodthings.com"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/helderperez-dev/voodoo-edge",
+  "frameworks": "arduino",
+  "platforms": [
+    "espressif32",
+    "atmelavr",
+    "atmelsam",
+    "ststm32",
+    "rp2040"
+  ],
+  "headers": "voodoo_edge.h",
+  "build": {
+    "srcDir": "src",
+    "includeDir": "include"
+  },
+  "export": {
+    "include": [
+      "src/**",
+      "include/**",
+      "examples/**",
+      "README.md",
+      "LICENSE"
+    ]
+  }
+}
