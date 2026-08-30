@@ -36,7 +36,7 @@ using namespace voodoo;
 static edge::Device device;
 static hardware::NtcThermistor *temp_sensor = nullptr;
 static hardware::SensorReader *analog_sensor = nullptr;
-static platform::esp32::MqttTransport *transport = nullptr;
+static voodoo::platform::esp32::MqttTransport *transport = nullptr;
 static float last_temp = -999.0f;
 static uint32_t last_read = 0;
 
@@ -64,8 +64,8 @@ static bool handle_sensor_read(
 
 void setup()
 {
-    platform::esp32::init();
-    auto &plat = platform::esp32::platform();
+    voodoo::platform::esp32::init();
+    auto &plat = voodoo::platform::esp32::platform();
     plat.logging->begin(115200);
     plat.logging->printf("\n[voodoo-edge] sensor_monitor starting\n");
 
@@ -97,7 +97,7 @@ void setup()
     }
 
     // MQTT
-    platform::esp32::MqttTransport::Config cfg = {
+    voodoo::platform::esp32::MqttTransport::Config cfg = {
         .broker_host = MQTT_BROKER_HOST,
         .broker_port = MQTT_BROKER_PORT,
         .device_id = device_id,
@@ -106,7 +106,7 @@ void setup()
         .keepalive_s = 60,
         .retry_initial_ms = 1000,
         .retry_max_ms = 30000};
-    transport = new platform::esp32::MqttTransport(cfg);
+    transport = new voodoo::platform::esp32::MqttTransport(cfg);
     device.connect(*transport);
 }
 
@@ -114,7 +114,7 @@ void loop()
 {
     device.update();
 
-    auto &plat = platform::esp32::platform();
+    auto &plat = voodoo::platform::esp32::platform();
     uint32_t now = plat.timer->millis();
 
     if ((now - last_read) >= READ_INTERVAL_MS)

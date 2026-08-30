@@ -46,7 +46,7 @@ static hardware::ButtonController *button = nullptr;
 static hardware::RelayController *relay = nullptr;
 static hardware::NtcThermistor *temp_sensor = nullptr;
 static hardware::BuzzerController *buzzer = nullptr;
-static platform::esp32::MqttTransport *transport = nullptr;
+static voodoo::platform::esp32::MqttTransport *transport = nullptr;
 
 // ---------------------------------------------------------------------------
 // Capability handlers
@@ -132,8 +132,8 @@ static void on_button_press(void *)
 
 void setup()
 {
-    platform::esp32::init();
-    auto &plat = platform::esp32::platform();
+    voodoo::platform::esp32::init();
+    auto &plat = voodoo::platform::esp32::platform();
     plat.logging->begin(115200);
     plat.logging->printf("\n[voodoo-edge] connected_device starting\n");
 
@@ -180,7 +180,7 @@ void setup()
     }
 
     // MQTT
-    platform::esp32::MqttTransport::Config cfg = {
+    voodoo::platform::esp32::MqttTransport::Config cfg = {
         .broker_host = MQTT_BROKER_HOST,
         .broker_port = MQTT_BROKER_PORT,
         .device_id = device_id,
@@ -189,7 +189,7 @@ void setup()
         .keepalive_s = 60,
         .retry_initial_ms = 1000,
         .retry_max_ms = 30000};
-    transport = new platform::esp32::MqttTransport(cfg);
+    transport = new voodoo::platform::esp32::MqttTransport(cfg);
     device.connect(*transport);
 
     // Startup beep
@@ -203,7 +203,7 @@ void loop()
 
     // Periodic temperature reading
     static uint32_t last_temp = 0;
-    auto &plat = platform::esp32::platform();
+    auto &plat = voodoo::platform::esp32::platform();
     uint32_t now = plat.timer->millis();
     if ((now - last_temp) >= 10000)
     {

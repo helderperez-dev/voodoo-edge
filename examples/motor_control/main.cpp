@@ -37,7 +37,7 @@ using namespace voodoo;
 static edge::Device device;
 static hardware::MotorController *motor = nullptr;
 static hardware::ServoController *servo = nullptr;
-static platform::esp32::MqttTransport *transport = nullptr;
+static voodoo::platform::esp32::MqttTransport *transport = nullptr;
 
 // ---------------------------------------------------------------------------
 // Capability handlers
@@ -91,8 +91,8 @@ static bool handle_servo_angle(
 
 void setup()
 {
-    platform::esp32::init();
-    auto &plat = platform::esp32::platform();
+    voodoo::platform::esp32::init();
+    auto &plat = voodoo::platform::esp32::platform();
     plat.logging->begin(115200);
     plat.logging->printf("\n[voodoo-edge] motor_control starting\n");
 
@@ -127,7 +127,7 @@ void setup()
     }
 
     // MQTT
-    platform::esp32::MqttTransport::Config cfg = {
+    voodoo::platform::esp32::MqttTransport::Config cfg = {
         .broker_host = MQTT_BROKER_HOST,
         .broker_port = MQTT_BROKER_PORT,
         .device_id = device_id,
@@ -136,7 +136,7 @@ void setup()
         .keepalive_s = 60,
         .retry_initial_ms = 1000,
         .retry_max_ms = 30000};
-    transport = new platform::esp32::MqttTransport(cfg);
+    transport = new voodoo::platform::esp32::MqttTransport(cfg);
     device.connect(*transport);
 }
 

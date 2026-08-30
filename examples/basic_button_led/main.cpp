@@ -45,7 +45,7 @@ using namespace voodoo;
 static edge::Device device;
 static hardware::LedController *led = nullptr;
 static hardware::ButtonController *button = nullptr;
-static platform::esp32::MqttTransport *transport = nullptr;
+static voodoo::platform::esp32::MqttTransport *transport = nullptr;
 
 // ---------------------------------------------------------------------------
 // Capability handlers
@@ -105,8 +105,8 @@ static void on_button_press(void *user_data)
 void setup()
 {
     // Initialize ESP32 platform
-    platform::esp32::init();
-    auto &plat = platform::esp32::platform();
+    voodoo::platform::esp32::init();
+    auto &plat = voodoo::platform::esp32::platform();
     plat.logging->begin(115200);
     plat.logging->printf("\n[voodoo-edge] basic_button_led starting\n");
 
@@ -151,7 +151,7 @@ void setup()
     }
 
     // Initialize MQTT transport and connect
-    platform::esp32::MqttTransport::Config mqtt_config = {
+    voodoo::platform::esp32::MqttTransport::Config mqtt_config = {
         .broker_host = MQTT_BROKER_HOST,
         .broker_port = MQTT_BROKER_PORT,
         .device_id = device_id,
@@ -161,7 +161,7 @@ void setup()
         .retry_initial_ms = 1000,
         .retry_max_ms = 30000};
 
-    transport = new platform::esp32::MqttTransport(mqtt_config);
+    transport = new voodoo::platform::esp32::MqttTransport(mqtt_config);
     device.connect(*transport);
 
     plat.logging->printf("[app] ready\n");
