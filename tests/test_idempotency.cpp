@@ -2,6 +2,7 @@
 // Voodoo Edge — Idempotency cache unit tests
 
 #include <unity.h>
+#include <cstdio>
 #include "voodoo_edge/core/idempotency.h"
 
 using namespace voodoo::edge;
