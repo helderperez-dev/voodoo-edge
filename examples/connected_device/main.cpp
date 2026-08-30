@@ -108,8 +108,8 @@ static bool handle_buzzer(const edge::EdgeMessage &effect, JsonObject result, vo
 static bool handle_restart(const edge::EdgeMessage &effect, JsonObject result, void *ud)
 {
     result["status"] = "restarting";
-    auto &platform = voodoo::hal::get_platform();
-    platform.timer->delay(100);
+    auto &plat = voodoo::hal::get_platform();
+    plat.timer->delay(100);
     ESP.restart();
     return true;
 }
@@ -133,31 +133,31 @@ static void on_button_press(void *)
 void setup()
 {
     platform::esp32::init();
-    auto &platform = platform::esp32::platform();
-    platform.logging->begin(115200);
-    platform.logging->printf("\n[voodoo-edge] connected_device starting\n");
+    auto &plat = platform::esp32::platform();
+    plat.logging->begin(115200);
+    plat.logging->printf("\n[voodoo-edge] connected_device starting\n");
 
     // Device ID
     char device_id[32];
     uint8_t mac[6];
-    platform.wifi->get_mac_address(mac);
+    plat.wifi->get_mac_address(mac);
     snprintf(device_id, sizeof(device_id), "device_%02x%02x%02x", mac[3], mac[4], mac[5]);
 
     // Hardware
-    led = new hardware::LedController(*platform.gpio, PIN_LED);
+    led = new hardware::LedController(*plat.gpio, PIN_LED);
     led->begin();
 
-    button = new hardware::ButtonController(*platform.gpio, *platform.timer, PIN_BUTTON);
+    button = new hardware::ButtonController(*plat.gpio, *plat.timer, PIN_BUTTON);
     button->begin();
     button->on_press(on_button_press);
 
-    relay = new hardware::RelayController(*platform.gpio, PIN_RELAY);
+    relay = new hardware::RelayController(*plat.gpio, PIN_RELAY);
     relay->begin();
 
-    temp_sensor = new hardware::NtcThermistor(*platform.adc, PIN_NTC);
+    temp_sensor = new hardware::NtcThermistor(*plat.adc, PIN_NTC);
     temp_sensor->begin();
 
-    buzzer = new hardware::BuzzerController(*platform.pwm, PWM_CH_BUZZER);
+    buzzer = new hardware::BuzzerController(*plat.pwm, PWM_CH_BUZZER);
     buzzer->begin(PIN_BUZZER);
 
     // Device
@@ -172,11 +172,11 @@ void setup()
     device.set_state("temperature", 0.0f);
 
     // WiFi
-    platform.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
-    uint32_t t0 = platform.timer->millis();
-    while (!platform.wifi->connected() && platform.timer->millis() - t0 < 15000)
+    plat.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
+    uint32_t t0 = plat.timer->millis();
+    while (!plat.wifi->connected() && plat.timer->millis() - t0 < 15000)
     {
-        platform.timer->delay(500);
+        plat.timer->delay(500);
     }
 
     // MQTT
@@ -203,8 +203,8 @@ void loop()
 
     // Periodic temperature reading
     static uint32_t last_temp = 0;
-    auto &platform = platform::esp32::platform();
-    uint32_t now = platform.timer->millis();
+    auto &plat = platform::esp32::platform();
+    uint32_t now = plat.timer->millis();
     if ((now - last_temp) >= 10000)
     {
         last_temp = now;

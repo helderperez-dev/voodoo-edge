@@ -89,8 +89,8 @@ static bool handle_led_control(
 // ---------------------------------------------------------------------------
 static void on_button_press(void *user_data)
 {
-    auto &platform = voodoo::hal::get_platform();
-    platform.logging->printf("[app] button pressed\n");
+    auto &plat = voodoo::hal::get_platform();
+    plat.logging->printf("[app] button pressed\n");
 
     JsonDocument payload_doc;
     JsonObject payload = payload_doc.to<JsonObject>();
@@ -106,22 +106,22 @@ void setup()
 {
     // Initialize ESP32 platform
     platform::esp32::init();
-    auto &platform = platform::esp32::platform();
-    platform.logging->begin(115200);
-    platform.logging->printf("\n[voodoo-edge] basic_button_led starting\n");
+    auto &plat = platform::esp32::platform();
+    plat.logging->begin(115200);
+    plat.logging->printf("\n[voodoo-edge] basic_button_led starting\n");
 
     // Generate device ID from MAC address
     char device_id[32];
     uint8_t mac[6];
-    platform.wifi->get_mac_address(mac);
+    plat.wifi->get_mac_address(mac);
     snprintf(device_id, sizeof(device_id), "esp32_%02x%02x%02x",
              mac[3], mac[4], mac[5]);
 
     // Initialize hardware
-    led = new hardware::LedController(*platform.gpio, PIN_LED);
+    led = new hardware::LedController(*plat.gpio, PIN_LED);
     led->begin();
 
-    button = new hardware::ButtonController(*platform.gpio, *platform.timer, PIN_BUTTON);
+    button = new hardware::ButtonController(*plat.gpio, *plat.timer, PIN_BUTTON);
     button->begin();
     button->on_press(on_button_press);
 
@@ -131,23 +131,23 @@ void setup()
     device.set_state("led_state", false);
 
     // Connect WiFi
-    platform.logging->printf("[wifi] connecting to %s\n", WIFI_SSID);
-    platform.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
+    plat.logging->printf("[wifi] connecting to %s\n", WIFI_SSID);
+    plat.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
 
-    uint32_t wifi_start = platform.timer->millis();
-    while (!platform.wifi->connected())
+    uint32_t wifi_start = plat.timer->millis();
+    while (!plat.wifi->connected())
     {
-        if (platform.timer->millis() - wifi_start > 15000)
+        if (plat.timer->millis() - wifi_start > 15000)
         {
-            platform.logging->printf("[wifi] connection timeout\n");
+            plat.logging->printf("[wifi] connection timeout\n");
             break;
         }
-        platform.timer->delay(500);
+        plat.timer->delay(500);
     }
 
-    if (platform.wifi->connected())
+    if (plat.wifi->connected())
     {
-        platform.logging->printf("[wifi] connected: %s\n", platform.wifi->local_ip());
+        plat.logging->printf("[wifi] connected: %s\n", plat.wifi->local_ip());
     }
 
     // Initialize MQTT transport and connect
@@ -164,7 +164,7 @@ void setup()
     transport = new platform::esp32::MqttTransport(mqtt_config);
     device.connect(*transport);
 
-    platform.logging->printf("[app] ready\n");
+    plat.logging->printf("[app] ready\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -177,52 +177,4 @@ void loop()
 
     // Hardware polling
     button->loop();
-}
-
-// Send HELLO
-const char *cap_names[] = {"led.control", "device.restart"};
-edge::EdgeMessage hello = edge::build_hello(
-    device_id, DEVICE_TYPE, FIRMWARE_VERSION, cap_names, 2);
-transport->publish(hello);
-
-// Send initial state
-edge::EdgeMessage state_msg = state->build_sync_message(device_id);
-transport->publish(state_msg);
-state->mark_synced();
-
-// Send ready event
-events->publish("device.ready");
-
-platform->logging->printf("[voodoo-edge] ready\n");
-}
-
-// ---------------------------------------------------------------------------
-// Arduino loop
-// ---------------------------------------------------------------------------
-void loop()
-{
-    // Process transport messages
-    transport->loop();
-
-    // Process button
-    button->loop();
-
-    // Heartbeat
-    uint32_t now = platform->timer->millis();
-    if (now - last_heartbeat >= HEARTBEAT_INTERVAL_MS)
-    {
-        last_heartbeat = now;
-        uint32_t uptime = now / 1000;
-        edge::EdgeMessage hb = edge::build_heartbeat(device_id, state->version(), uptime);
-        transport->publish(hb);
-    }
-
-    // State sync
-    if (state->has_changed() && (now - last_state_sync >= STATE_SYNC_INTERVAL_MS))
-    {
-        last_state_sync = now;
-        edge::EdgeMessage state_msg = state->build_sync_message(device_id);
-        transport->publish(state_msg);
-        state->mark_synced();
-    }
 }

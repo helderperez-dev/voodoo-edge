@@ -65,22 +65,22 @@ static bool handle_sensor_read(
 void setup()
 {
     platform::esp32::init();
-    auto &platform = platform::esp32::platform();
-    platform.logging->begin(115200);
-    platform.logging->printf("\n[voodoo-edge] sensor_monitor starting\n");
+    auto &plat = platform::esp32::platform();
+    plat.logging->begin(115200);
+    plat.logging->printf("\n[voodoo-edge] sensor_monitor starting\n");
 
     // Device ID
     char device_id[32];
     uint8_t mac[6];
-    platform.wifi->get_mac_address(mac);
+    plat.wifi->get_mac_address(mac);
     snprintf(device_id, sizeof(device_id), "sensor_%02x%02x%02x", mac[3], mac[4], mac[5]);
 
     // Sensors
-    analog_sensor = new hardware::SensorReader(*platform.adc, PIN_NTC);
+    analog_sensor = new hardware::SensorReader(*plat.adc, PIN_NTC);
     analog_sensor->begin();
     analog_sensor->set_smoothing(8);
 
-    temp_sensor = new hardware::NtcThermistor(*platform.adc, PIN_NTC);
+    temp_sensor = new hardware::NtcThermistor(*plat.adc, PIN_NTC);
     temp_sensor->begin();
 
     // Device
@@ -89,11 +89,11 @@ void setup()
     device.set_state("temperature", 0.0f);
 
     // WiFi
-    platform.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
-    uint32_t t0 = platform.timer->millis();
-    while (!platform.wifi->connected() && platform.timer->millis() - t0 < 15000)
+    plat.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
+    uint32_t t0 = plat.timer->millis();
+    while (!plat.wifi->connected() && plat.timer->millis() - t0 < 15000)
     {
-        platform.timer->delay(500);
+        plat.timer->delay(500);
     }
 
     // MQTT
@@ -114,8 +114,8 @@ void loop()
 {
     device.update();
 
-    auto &platform = platform::esp32::platform();
-    uint32_t now = platform.timer->millis();
+    auto &plat = platform::esp32::platform();
+    uint32_t now = plat.timer->millis();
 
     if ((now - last_read) >= READ_INTERVAL_MS)
     {

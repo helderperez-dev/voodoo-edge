@@ -92,22 +92,22 @@ static bool handle_servo_angle(
 void setup()
 {
     platform::esp32::init();
-    auto &platform = platform::esp32::platform();
-    platform.logging->begin(115200);
-    platform.logging->printf("\n[voodoo-edge] motor_control starting\n");
+    auto &plat = platform::esp32::platform();
+    plat.logging->begin(115200);
+    plat.logging->printf("\n[voodoo-edge] motor_control starting\n");
 
     // Device ID from MAC
     char device_id[32];
     uint8_t mac[6];
-    platform.wifi->get_mac_address(mac);
+    plat.wifi->get_mac_address(mac);
     snprintf(device_id, sizeof(device_id), "motor_%02x%02x%02x", mac[3], mac[4], mac[5]);
 
     // Hardware
-    motor = new hardware::MotorController(*platform.gpio, *platform.pwm,
+    motor = new hardware::MotorController(*plat.gpio, *plat.pwm,
                                           PIN_MOTOR_DIR, PWM_CH_MOTOR);
     motor->begin();
 
-    servo = new hardware::ServoController(*platform.pwm, PWM_CH_SERVO);
+    servo = new hardware::ServoController(*plat.pwm, PWM_CH_SERVO);
     servo->begin(PIN_SERVO);
 
     // Device
@@ -119,11 +119,11 @@ void setup()
     device.set_state("servo_angle", 90);
 
     // WiFi
-    platform.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
-    uint32_t t0 = platform.timer->millis();
-    while (!platform.wifi->connected() && platform.timer->millis() - t0 < 15000)
+    plat.wifi->begin(WIFI_SSID, WIFI_PASSWORD);
+    uint32_t t0 = plat.timer->millis();
+    while (!plat.wifi->connected() && plat.timer->millis() - t0 < 15000)
     {
-        platform.timer->delay(500);
+        plat.timer->delay(500);
     }
 
     // MQTT
