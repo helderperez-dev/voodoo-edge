@@ -24,8 +24,8 @@ namespace voodoo
 
         void EncoderController::begin()
         {
-            _gpio.pinMode(_pin_a, hal::Gpio::Mode::INPUT_PULLUP);
-            _gpio.pinMode(_pin_b, hal::Gpio::Mode::INPUT_PULLUP);
+            _gpio.pinMode(_pin_a, hal::Gpio::Mode::InputPullUp);
+            _gpio.pinMode(_pin_b, hal::Gpio::Mode::InputPullUp);
             _last_state = read_state();
         }
 

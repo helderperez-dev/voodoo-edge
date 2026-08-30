@@ -15,19 +15,19 @@ namespace voodoo
 
         void RelayController::begin()
         {
-            _gpio.pinMode(_pin, hal::Gpio::Mode::OUTPUT);
+            _gpio.pinMode(_pin, hal::Gpio::Mode::Output);
             off();
         }
 
         void RelayController::on()
         {
-            _gpio.digitalWrite(_pin, _active_high ? hal::Gpio::Level::HIGH : hal::Gpio::Level::LOW);
+            _gpio.digitalWrite(_pin, _active_high ? hal::Gpio::Level::High : hal::Gpio::Level::Low);
             _state = true;
         }
 
         void RelayController::off()
         {
-            _gpio.digitalWrite(_pin, _active_high ? hal::Gpio::Level::LOW : hal::Gpio::Level::HIGH);
+            _gpio.digitalWrite(_pin, _active_high ? hal::Gpio::Level::Low : hal::Gpio::Level::High);
             _state = false;
         }
 

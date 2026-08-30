@@ -18,8 +18,8 @@ namespace voodoo
 
         void MotorController::begin()
         {
-            _gpio.pinMode(_dir_pin, hal::Gpio::Mode::OUTPUT);
-            _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::LOW);
+            _gpio.pinMode(_dir_pin, hal::Gpio::Mode::Output);
+            _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::Low);
             _pwm.setup(_pwm_channel, _pwm_freq_hz, _pwm_resolution);
             stop();
         }
@@ -43,11 +43,11 @@ namespace voodoo
             // Set direction
             if (speed > 0)
             {
-                _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::HIGH);
+                _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::High);
             }
             else
             {
-                _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::LOW);
+                _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::Low);
             }
 
             // Set PWM duty
@@ -64,7 +64,7 @@ namespace voodoo
         void MotorController::brake()
         {
             _speed = 0.0f;
-            _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::HIGH);
+            _gpio.digitalWrite(_dir_pin, hal::Gpio::Level::High);
             _pwm.write_float(_pwm_channel, 1.0f);
         }
 

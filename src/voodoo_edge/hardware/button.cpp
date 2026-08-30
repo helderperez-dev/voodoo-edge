@@ -11,8 +11,8 @@ ButtonController::ButtonController(hal::Gpio& gpio, hal::Timer& timer, uint8_t p
     , _timer(timer)
     , _pin(pin)
     , _debounce_ms(debounce_ms)
-    , _last_state(hal::Gpio::Level::HIGH)
-    , _debounced_state(hal::Gpio::Level::HIGH)
+    , _last_state(hal::Gpio::Level::High)
+    , _debounced_state(hal::Gpio::Level::High)
     , _last_debounce_time(0)
     , _callback(nullptr)
     , _user_data(nullptr)
@@ -20,7 +20,7 @@ ButtonController::ButtonController(hal::Gpio& gpio, hal::Timer& timer, uint8_t p
 }
 
 void ButtonController::begin() {
-    _gpio.pinMode(_pin, hal::Gpio::Mode::INPUT_PULLUP);
+    _gpio.pinMode(_pin, hal::Gpio::Mode::InputPullUp);
     _last_state = _gpio.digitalRead(_pin);
     _debounced_state = _last_state;
 }
@@ -37,7 +37,7 @@ void ButtonController::loop() {
             _debounced_state = reading;
 
             // Trigger on press (LOW = pressed for active-LOW button)
-            if (_debounced_state == hal::Gpio::Level::LOW && _callback) {
+            if (_debounced_state == hal::Gpio::Level::Low && _callback) {
                 _callback(_user_data);
             }
         }
@@ -52,7 +52,7 @@ void ButtonController::on_press(ButtonPressCallback callback, void* user_data) {
 }
 
 bool ButtonController::is_pressed() const {
-    return _gpio.digitalRead(_pin) == hal::Gpio::Level::LOW;
+    return _gpio.digitalRead(_pin) == hal::Gpio::Level::Low;
 }
 
 } // namespace hardware

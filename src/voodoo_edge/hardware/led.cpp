@@ -14,17 +14,17 @@ LedController::LedController(hal::Gpio& gpio, uint8_t pin)
 }
 
 void LedController::begin() {
-    _gpio.pinMode(_pin, hal::Gpio::Mode::OUTPUT);
+    _gpio.pinMode(_pin, hal::Gpio::Mode::Output);
     off();
 }
 
 void LedController::on() {
-    _gpio.digitalWrite(_pin, hal::Gpio::Level::HIGH);
+    _gpio.digitalWrite(_pin, hal::Gpio::Level::High);
     _state = true;
 }
 
 void LedController::off() {
-    _gpio.digitalWrite(_pin, hal::Gpio::Level::LOW);
+    _gpio.digitalWrite(_pin, hal::Gpio::Level::Low);
     _state = false;
 }
 

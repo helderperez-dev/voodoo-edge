@@ -25,16 +25,16 @@ namespace voodoo
 
             enum class Mode : uint8_t
             {
-                INPUT = 0,
-                OUTPUT = 1,
-                INPUT_PULLUP = 2,
-                INPUT_PULLDOWN = 3
+                Input = 0,
+                Output = 1,
+                InputPullUp = 2,
+                InputPullDown = 3
             };
 
             enum class Level : uint8_t
             {
-                LOW = 0,
-                HIGH = 1
+                Low = 0,
+                High = 1
             };
 
             virtual void pinMode(uint8_t pin, Mode mode) = 0;

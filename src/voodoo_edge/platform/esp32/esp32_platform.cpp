@@ -27,17 +27,36 @@ namespace voodoo
             public:
                 void pinMode(uint8_t pin, Mode mode) override
                 {
-                    ::pinMode(pin, static_cast<uint8_t>(mode));
+                    int arduino_mode;
+                    switch (mode)
+                    {
+                    case Mode::Input:
+                        arduino_mode = INPUT;
+                        break;
+                    case Mode::Output:
+                        arduino_mode = OUTPUT;
+                        break;
+                    case Mode::InputPullUp:
+                        arduino_mode = INPUT_PULLUP;
+                        break;
+                    case Mode::InputPullDown:
+                        arduino_mode = INPUT_PULLDOWN;
+                        break;
+                    default:
+                        arduino_mode = INPUT;
+                        break;
+                    }
+                    ::pinMode(pin, arduino_mode);
                 }
 
                 void digitalWrite(uint8_t pin, Level level) override
                 {
-                    ::digitalWrite(pin, static_cast<uint8_t>(level));
+                    ::digitalWrite(pin, level == Level::High ? HIGH : LOW);
                 }
 
                 Level digitalRead(uint8_t pin) override
                 {
-                    return static_cast<Level>(::digitalRead(pin));
+                    return ::digitalRead(pin) == HIGH ? Level::High : Level::Low;
                 }
             };
 
