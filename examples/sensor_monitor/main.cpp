@@ -10,6 +10,8 @@
 
 #include <Arduino.h>
 #include <voodoo_edge.h>
+#include "voodoo_edge/platform/esp32/esp32_platform.h"
+#include "voodoo_edge/platform/esp32/mqtt_transport.h"
 
 using namespace voodoo;
 
