@@ -1,0 +1,167 @@
+# Release — Build, Package & Publish
+#
+# Triggered by pushing a tag matching v* (e.g. v1.0.0, v1.2.3).
+#
+# Workflow:
+#   1. Validates version consistency across manifests
+#   2. Builds all examples for ESP32 (release build)
+#   3. Runs native unit tests
+#   4. Creates a GitHub Release with release notes from CHANGELOG.md
+#   5. Uploads build artifacts
+#
+# To create a release:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+#
+# Or use the version bump script:
+#   ./scripts/bump_version.sh 1.1.0
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Validate ────────────────────────────────────────────────────
+  validate:
+    name: Validate release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Release version: $TAG"
+
+      - name: Validate version consistency
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          JSON_VER=$(python3 -c "import json; print(json.load(open('library.json'))['version'])")
+          PROP_VER=$(grep "^version=" library.properties | cut -d= -f2)
+
+          echo "Tag version:              $TAG"
+          echo "library.json version:     $JSON_VER"
+          echo "library.properties version: $PROP_VER"
+
+          if [ "$TAG" != "$JSON_VER" ]; then
+            echo "::error::Tag version ($TAG) does not match library.json ($JSON_VER)"
+            exit 1
+          fi
+          if [ "$TAG" != "$PROP_VER" ]; then
+            echo "::error::Tag version ($TAG) does not match library.properties ($PROP_VER)"
+            exit 1
+          fi
+
+  # ── Build all examples ──────────────────────────────────────────
+  build:
+    name: Build examples (ESP32)
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - basic_button_led
+          - motor_control
+          - sensor_monitor
+          - connected_device
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build ${{ matrix.example }}
+        run: |
+          cd examples/${{ matrix.example }}
+          pio run -e esp32dev
+
+      - name: Upload firmware binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.example }}
+          path: examples/${{ matrix.example }}/.pio/build/esp32dev/firmware.bin
+
+  # ── Unit tests ──────────────────────────────────────────────────
+  test:
+    name: Unit tests (native)
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Run native tests
+        run: pio test -e native --verbose
+
+  # ── Create GitHub Release ───────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: [validate, build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          # Extract the section for this version from CHANGELOG.md
+          NOTES=$(awk "/^## \[${VERSION}\]/{found=1; next} /^## \[/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            NOTES="Release v${VERSION}"
+          fi
+          # Write to file (multi-line safe)
+          echo "$NOTES" > /tmp/release-notes.md
+          echo "Release notes extracted for v${VERSION}"
+
+      - name: Download all firmware artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release-assets
+          for dir in artifacts/firmware-*; do
+            name=$(basename "$dir")
+            example=${name#firmware-}
+            cp "$dir/firmware.bin" "release-assets/${example}-firmware.bin"
+          done
+          # Also create a source archive
+          git archive --format=zip --prefix="voodoo-edge-${{ needs.validate.outputs.version }}/" HEAD > \
+            "release-assets/voodoo-edge-${{ needs.validate.outputs.version }}-source.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: v${{ needs.validate.outputs.version }}
+          body_path: /tmp/release-notes.md
+          draft: false
+          prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
+          files: release-assets/*

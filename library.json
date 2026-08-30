@@ -1,8 +1,8 @@
 {
   "name": "voodoo-edge",
   "version": "1.0.0",
-  "description": "Reusable SDK for connecting physical devices to the Voodoo Runtime",
-  "keywords": "voodoo, iot, edge, mqtt, esp32, arduino, embedded",
+  "description": "C++ SDK for connecting physical devices to the Voodoo Runtime. Features Device facade, connection manager, MQTT/HTTP transport, HAL (GPIO/PWM/ADC/I2C/SPI), and hardware components (LED, button, motor, servo, relay, buzzer, encoder, sensors).",
+  "keywords": "voodoo, iot, edge, mqtt, http, esp32, arduino, embedded, hal, motor, servo, sensor",
   "repository": {
     "type": "git",
     "url": "https://github.com/helderperez-dev/voodoo-edge.git"
@@ -31,10 +31,20 @@
   "export": {
     "include": [
       "src/**",
-      "include/**",
       "examples/**",
       "README.md",
-      "LICENSE"
+      "CHANGELOG.md",
+      "LICENSE",
+      "library.properties"
+    ],
+    "exclude": [
+      "tests/**",
+      "tools/**",
+      "docs/**",
+      ".github/**",
+      ".pio/**",
+      ".vscode/**",
+      "ROADMAP.md"
     ]
   }
 }

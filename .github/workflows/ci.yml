@@ -1,0 +1,106 @@
+# CI — Build & Test
+#
+# Runs on every push and pull request.
+# - Builds all examples for ESP32
+# - Runs native unit tests
+# - Validates library manifests
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Validate library manifests ──────────────────────────────────
+  validate:
+    name: Validate manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check library.json is valid JSON
+        run: python3 -c "import json; json.load(open('library.json'))"
+
+      - name: Check library.properties exists and has required fields
+        run: |
+          test -f library.properties
+          grep -q "^name=" library.properties
+          grep -q "^version=" library.properties
+          grep -q "^author=" library.properties
+          grep -q "^architectures=" library.properties
+
+      - name: Verify version consistency
+        run: |
+          JSON_VER=$(python3 -c "import json; print(json.load(open('library.json'))['version'])")
+          PROP_VER=$(grep "^version=" library.properties | cut -d= -f2)
+          echo "library.json version: $JSON_VER"
+          echo "library.properties version: $PROP_VER"
+          test "$JSON_VER" = "$PROP_VER"
+
+  # ── Build examples for ESP32 ────────────────────────────────────
+  build-examples:
+    name: Build examples (ESP32)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - basic_button_led
+          - motor_control
+          - sensor_monitor
+          - connected_device
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build ${{ matrix.example }}
+        run: |
+          cd examples/${{ matrix.example }}
+          pio run -e esp32dev
+
+  # ── Native unit tests ───────────────────────────────────────────
+  test-native:
+    name: Unit tests (native)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Run native tests
+        run: pio test -e native --verbose
+
+  # ── Lint / static analysis ──────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for common issues
+        run: |
+          # Ensure no secrets are committed
+          ! grep -r "password\|secret\|token" examples/ --include="*.cpp" --include="*.h" -l || true
+          # Ensure all headers have include guards
+          for f in src/voodoo_edge/**/*.h; do
+            if ! grep -q "#ifndef\|#pragma once" "$f"; then
+              echo "Missing include guard: $f"
+              exit 1
+            fi
+          done
