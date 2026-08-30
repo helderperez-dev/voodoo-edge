@@ -1,6 +1,8 @@
 // http_transport.cpp
 // Voodoo Edge — HTTP transport implementation
 
+#ifndef VOODOO_EDGE_NATIVE_TEST
+
 #include "voodoo_edge/platform/esp32/http_transport.h"
 #include "voodoo_edge/platform/hal.h"
 #include <cstring>
@@ -191,3 +193,5 @@ namespace voodoo
         } // namespace esp32
     } // namespace platform
 } // namespace voodoo
+
+#endif // VOODOO_EDGE_NATIVE_TEST

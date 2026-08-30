@@ -1,6 +1,8 @@
 // esp32_platform.cpp
 // Voodoo Edge — ESP32 platform implementation
 
+#ifndef VOODOO_EDGE_NATIVE_TEST
+
 #include "voodoo_edge/platform/esp32/esp32_platform.h"
 #include <Arduino.h>
 #include <WiFi.h>
@@ -417,3 +419,5 @@ namespace voodoo
         } // namespace esp32
     } // namespace platform
 } // namespace voodoo
+
+#endif // VOODOO_EDGE_NATIVE_TEST

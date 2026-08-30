@@ -68,15 +68,4 @@ void test_user_data() {
     TEST_ASSERT_EQUAL_PTR(&data, registry.find_user_data("led.control"));
 }
 
-void setup() {
-    UNITY_BEGIN();
-    RUN_TEST(test_register_and_find);
-    RUN_TEST(test_duplicate_registration);
-    RUN_TEST(test_max_capabilities);
-    RUN_TEST(test_names_array);
-    RUN_TEST(test_has);
-    RUN_TEST(test_user_data);
-    UNITY_END();
-}
 
-void loop() {}

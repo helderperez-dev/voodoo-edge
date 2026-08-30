@@ -1,6 +1,8 @@
 // mqtt_transport.cpp
 // Voodoo Edge — MQTT transport implementation
 
+#ifndef VOODOO_EDGE_NATIVE_TEST
+
 #include "voodoo_edge/platform/esp32/mqtt_transport.h"
 #include "voodoo_edge/platform/hal.h"
 #include <cstring>
@@ -139,3 +141,5 @@ void MqttTransport::static_callback(char* topic, uint8_t* payload, unsigned int 
 } // namespace esp32
 } // namespace platform
 } // namespace voodoo
+
+#endif // VOODOO_EDGE_NATIVE_TEST

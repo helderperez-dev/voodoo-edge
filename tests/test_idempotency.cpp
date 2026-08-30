@@ -54,14 +54,4 @@ void test_null_handling() {
     TEST_ASSERT_EQUAL(0, cache.count());
 }
 
-void setup() {
-    UNITY_BEGIN();
-    RUN_TEST(test_basic_seen);
-    RUN_TEST(test_duplicate_mark);
-    RUN_TEST(test_circular_eviction);
-    RUN_TEST(test_clear);
-    RUN_TEST(test_null_handling);
-    UNITY_END();
-}
 
-void loop() {}

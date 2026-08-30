@@ -283,10 +283,10 @@ bool validate_event_name(const char* name) {
     size_t len = strlen(name);
     if (name[len - 1] == '.') return false;
 
-    // Must be lowercase alphanumeric with dots
+    // Must be lowercase alphanumeric with dots and underscores
     for (size_t i = 0; i < len; i++) {
         char c = name[i];
-        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '.')) {
+        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '.' || c == '_')) {
             return false;
         }
     }
@@ -315,8 +315,12 @@ void generate_message_id(char* buffer, size_t size) {
     if (platform.random) {
         platform.random->fill(random_bytes, sizeof(random_bytes));
     } else {
-        // Fallback: use timer-based pseudo-random
-        uint32_t seed = platform.timer ? platform.timer->millis() : 12345;
+        // Fallback: use timer-based pseudo-random with persistent state
+        static uint32_t seed = 0;
+        if (seed == 0) {
+            seed = platform.timer ? platform.timer->millis() : 12345;
+            if (seed == 0) seed = 1;
+        }
         for (size_t i = 0; i < sizeof(random_bytes); i++) {
             seed = seed * 1103515245 + 12345;
             random_bytes[i] = (seed >> 16) & 0xFF;

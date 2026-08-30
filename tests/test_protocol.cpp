@@ -120,26 +120,11 @@ void test_generate_message_id() {
     generate_message_id(id2, sizeof(id2));
 
     // Should start with "msg_"
-    TEST_ASSERT_EQUAL_STRING("msg_", id1);  // prefix check
+    TEST_ASSERT_TRUE(strncmp(id1, "msg_", 4) == 0);  // prefix check
     TEST_ASSERT_EQUAL(24, strlen(id1));      // "msg_" + 20 hex
 
     // Two IDs should be different (with high probability)
     TEST_ASSERT_FALSE(strcmp(id1, id2) == 0);
 }
 
-void setup() {
-    UNITY_BEGIN();
-    RUN_TEST(test_message_type_conversion);
-    RUN_TEST(test_message_type_from_string);
-    RUN_TEST(test_validate_event_name);
-    RUN_TEST(test_validate_protocol_version);
-    RUN_TEST(test_edge_message_serialize_deserialize);
-    RUN_TEST(test_build_hello);
-    RUN_TEST(test_build_event);
-    RUN_TEST(test_build_effect_ack);
-    RUN_TEST(test_build_heartbeat);
-    RUN_TEST(test_generate_message_id);
-    UNITY_END();
-}
 
-void loop() {}

@@ -5,6 +5,8 @@
 #ifndef UNITY_CONFIG_H
 #define UNITY_CONFIG_H
 
+#include <stdio.h>
+
 // Use default Unity output (stdout)
 #define UNITY_OUTPUT_CHAR(a) putchar(a)
 

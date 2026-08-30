@@ -58,14 +58,4 @@ void test_build_sync_message() {
     TEST_ASSERT_EQUAL(1, payload["state_version"]);
 }
 
-void setup() {
-    UNITY_BEGIN();
-    RUN_TEST(test_initial_state);
-    RUN_TEST(test_set_increments_version);
-    RUN_TEST(test_mark_synced);
-    RUN_TEST(test_state_json);
-    RUN_TEST(test_build_sync_message);
-    UNITY_END();
-}
 
-void loop() {}
